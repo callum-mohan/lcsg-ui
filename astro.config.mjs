@@ -1,5 +1,12 @@
 // @ts-check
+
+import sitemap from '@astrojs/sitemap';
 import { defineConfig } from 'astro/config';
 
-// https://astro.build/config
-export default defineConfig({});
+// NOTE: Replace `site` with the group's real custom domain once configured in
+// Cloudflare Pages. It is used for the sitemap and social sharing metadata.
+export default defineConfig({
+  site: 'https://lisburn-cathedral-scouts.pages.dev',
+  output: 'static',
+  integrations: [sitemap()],
+});

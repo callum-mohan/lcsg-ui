@@ -1,0 +1,80 @@
+---
+import { getCollection } from 'astro:content';
+import JoinCta from '../../components/JoinCta.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import RecentCard from '../../components/RecentCard.astro';
+import { site } from '../../data/site';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const stories = (await getCollection('recent')).sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime(),
+);
+const [featured, ...rest] = stories;
+const anySample = stories.some((s) => s.data.sample);
+---
+
+<BaseLayout
+  title="Recent adventures"
+  description={`Stories and photos from recent activities at ${site.name} in ${site.locality}.`}
+>
+  <PageHeader
+    eyebrow="The logbook"
+    title="Recent adventures"
+    lead="A record of what our sections have been up to: camps, challenges, trips and everyday evenings that add up to a lot of fun and a few new skills."
+  />
+
+  <section class="section section--tight">
+    <div class="container">
+      {anySample && (
+        <p class="fine-print stories-note">
+          <span class="placeholder">Sample stories</span>
+          The write-ups below are examples. Replace them with real stories and
+          photographs from the group.
+        </p>
+      )}
+
+      {stories.length > 0 ? (
+        <>
+          {featured && <RecentCard entry={featured} featured />}
+          {rest.length > 0 && (
+            <div class="stories-grid">
+              {rest.map((entry) => (
+                <RecentCard entry={entry} />
+              ))}
+            </div>
+          )}
+        </>
+      ) : (
+        <div class="empty-state">
+          <h2>No stories yet</h2>
+          <p>We’ll add write-ups and photos here as our adventures happen.</p>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <JoinCta />
+</BaseLayout>
+
+<style>
+  .stories-note {
+    margin: 0 0 var(--space-xl);
+  }
+  .stories-grid {
+    display: grid;
+    gap: var(--space-xl) var(--space-lg);
+    margin-top: var(--space-xl);
+    padding-top: var(--space-xl);
+    border-top: 1px solid var(--line);
+  }
+  @media (min-width: 44rem) {
+    .stories-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (min-width: 68rem) {
+    .stories-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+</style>

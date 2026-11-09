@@ -1,0 +1,506 @@
+---
+import { type CollectionEntry, getCollection, render } from 'astro:content';
+import ActivityCard from '../../components/ActivityCard.astro';
+import JoinCta from '../../components/JoinCta.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import PlaceholderImage from '../../components/PlaceholderImage.astro';
+import RecentCard from '../../components/RecentCard.astro';
+import {
+  type SectionKey,
+  sectionColorVar,
+  sectionHref,
+} from '../../data/sections';
+import { site } from '../../data/site';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { ageSpan } from '../../utils/format';
+
+export async function getStaticPaths() {
+  const sections = (await getCollection('sections')).sort(
+    (a, b) => a.data.order - b.data.order,
+  );
+  return sections.map((entry, i) => ({
+    params: { section: entry.data.key },
+    props: { entry, prev: sections[i - 1], next: sections[i + 1] },
+  }));
+}
+
+interface Props {
+  entry: CollectionEntry<'sections'>;
+  prev?: CollectionEntry<'sections'>;
+  next?: CollectionEntry<'sections'>;
+}
+
+const { entry, prev, next } = Astro.props;
+const { data } = entry;
+const key = data.key as SectionKey;
+const accent = sectionColorVar[key];
+const age = ageSpan(data.ageRange);
+const { Content } = await render(entry);
+
+const now = new Date();
+const sectionActivities = (await getCollection('activities'))
+  .filter((a) => a.data.date >= now && a.data.sections.includes(key))
+  .sort((a, b) => a.data.date.getTime() - b.data.date.getTime())
+  .slice(0, 3);
+
+const sectionStories = (await getCollection('recent'))
+  .filter((s) => s.data.sections.includes(key))
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+  .slice(0, 3);
+
+const sectionLeaders = (await getCollection('leaders'))
+  .filter((l) => l.data.sections.includes(key))
+  .sort((a, b) => a.data.order - b.data.order);
+
+const neighbours = [
+  prev && { entry: prev, dir: 'prev', label: 'Younger section' },
+  next && { entry: next, dir: 'next', label: 'Older section' },
+].filter(Boolean) as {
+  entry: CollectionEntry<'sections'>;
+  dir: string;
+  label: string;
+}[];
+---
+
+<BaseLayout
+  title={data.name}
+  description={`${data.name} at ${site.name}, ${site.locality}: ${data.tagline}. ${data.intro}`}
+>
+  <div data-section={key} style={`--accent:${accent}`}>
+    <PageHeader
+      title={data.name}
+      eyebrow={data.tagline}
+      lead={data.intro}
+      crumbs={[{ href: '/sections/', label: 'Sections' }]}
+      accent={accent}
+    >
+      <dl class="s-facts">
+        <div>
+          <dt>Ages</dt>
+          <dd>
+            {age ? (
+              <>
+                {age} <span class="s-facts__unit">years</span>
+              </>
+            ) : (
+              data.ageRange
+            )}
+            {!data.ageConfirmed && (
+              <span class="placeholder">To be confirmed</span>
+            )}
+          </dd>
+        </div>
+        <div>
+          <dt>Meets</dt>
+          <dd>
+            {data.meetingConfirmed && data.meetingInfo ? (
+              data.meetingInfo
+            ) : (
+              <span class="placeholder">To be confirmed</span>
+            )}
+          </dd>
+        </div>
+      </dl>
+      <div class="s-actions">
+        <a class="btn" href={`mailto:${site.email}`}>{data.cta}</a>
+        {sectionActivities.length > 0 && (
+          <a class="arrow-link" href="#coming-up">
+            What’s coming up
+          </a>
+        )}
+      </div>
+
+      <PlaceholderImage
+        slot="aside"
+        src={data.heroImage}
+        alt={data.heroImageAlt}
+        ratio="4/3"
+        accent={accent}
+        caption={`${data.name} photo to follow`}
+        loading="eager"
+        sizes="(max-width: 56rem) 100vw, 640px"
+      />
+    </PageHeader>
+
+    <!-- OVERVIEW + MEETINGS -->
+    <section class="section s-main">
+      <div class="container s-main__grid">
+        <div class="s-main__content">
+          <div class="prose s-prose"><Content /></div>
+
+          {data.activities.length > 0 && (
+            <div class="s-programme">
+              <h2>What {data.name} get up to</h2>
+              <ol class="s-programme__list">
+                {data.activities.map((item, i) => (
+                  <li>
+                    <span class="s-programme__num" aria-hidden="true">
+                      {String(i + 1).padStart(2, '0')}
+                    </span>
+                    {item}
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
+        </div>
+
+        <aside class="s-aside" aria-label={`About joining ${data.name}`}>
+          <div class="s-panel">
+            <h2 class="s-panel__title">Meeting information</h2>
+            {data.meetingConfirmed && data.meetingInfo ? (
+              <p>{data.meetingInfo}</p>
+            ) : (
+              <p class="s-panel__muted">
+                Meeting day, time and venue will be added once confirmed with
+                the group.
+              </p>
+            )}
+            <h3 class="s-panel__title">Interested?</h3>
+            <p>
+              Email us and we’ll let you know about {data.name} and any spaces.
+            </p>
+            <a class="btn btn--sm" href={`mailto:${site.email}`}>{data.cta}</a>
+          </div>
+
+          {sectionLeaders.length > 0 && (
+            <div class="s-panel">
+              <h2 class="s-panel__title">
+                {sectionLeaders.length === 1
+                  ? 'Section leader'
+                  : 'Section leaders'}
+              </h2>
+              <ul class="s-leaders">
+                {sectionLeaders.map((l) => (
+                  <li>
+                    <span class="s-leaders__name">{l.data.name}</span>
+                    <span class="s-leaders__role">{l.data.role}</span>
+                  </li>
+                ))}
+              </ul>
+              {sectionLeaders.some((l) => l.data.placeholder) && (
+                <p class="fine-print">
+                  <span class="placeholder">Placeholder</span> Names to follow.
+                </p>
+              )}
+              <a class="arrow-link s-panel__link" href="/leaders/">
+                Meet the whole team
+              </a>
+            </div>
+          )}
+        </aside>
+      </div>
+    </section>
+
+    <!-- SECTION ACTIVITIES -->
+    {sectionActivities.length > 0 && (
+      <section id="coming-up" class="section section--tight">
+        <div class="container">
+          <div class="band-head">
+            <div>
+              <p class="eyebrow eyebrow--accent">What’s on</p>
+              <h2>Coming up for {data.name}</h2>
+            </div>
+            <a class="arrow-link" href="/activities/">
+              Full programme
+            </a>
+          </div>
+          <div class="event-list">
+            {sectionActivities.map((a) => (
+              <ActivityCard entry={a} />
+            ))}
+          </div>
+        </div>
+      </section>
+    )}
+
+    <!-- SECTION STORIES -->
+    {sectionStories.length > 0 && (
+      <section class="section section--tight">
+        <div class="container">
+          <div class="band-head">
+            <div>
+              <p class="eyebrow eyebrow--accent">Recent adventures</p>
+              <h2>What {data.name} have been up to</h2>
+            </div>
+            <a class="arrow-link" href="/recent/">
+              All stories
+            </a>
+          </div>
+          <div class="s-stories">
+            {sectionStories.length === 1 ? (
+              <RecentCard entry={sectionStories[0]} featured />
+            ) : (
+              sectionStories.map((s) => <RecentCard entry={s} />)
+            )}
+          </div>
+        </div>
+      </section>
+    )}
+
+    <!-- NEIGHBOURING SECTIONS -->
+    <nav class="section section--tight" aria-label="Other sections">
+      <div class="container s-pager">
+        {neighbours.map(({ entry: n, dir, label }) => {
+          const nKey = n.data.key as SectionKey;
+          const nAge = ageSpan(n.data.ageRange);
+          return (
+            <a
+              class={`s-pager__link s-pager__link--${dir}`}
+              href={sectionHref(nKey)}
+              style={`--accent:${sectionColorVar[nKey]}`}
+            >
+              <span class="s-pager__label">
+                {dir === 'prev' ? '←' : ''} {label} {dir === 'next' ? '→' : ''}
+              </span>
+              <span class="s-pager__name">{n.data.name}</span>
+              {nAge && <span class="s-pager__age">{nAge} years</span>}
+            </a>
+          );
+        })}
+      </div>
+    </nav>
+  </div>
+
+  <JoinCta heading={`Interested in ${data.name}?`} />
+</BaseLayout>
+
+<style>
+  /* ---- Header extras ---- */
+  .s-facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-md) var(--space-xl);
+    margin: var(--space-lg) 0;
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--line);
+  }
+  .s-facts dt {
+    font-family: var(--font-display);
+    font-size: var(--step--2);
+    font-weight: 700;
+    font-stretch: 112%;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin-bottom: 0.3rem;
+  }
+  .s-facts dd {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+    font-weight: 650;
+    font-size: var(--step-1);
+  }
+  .s-facts__unit {
+    font-weight: 500;
+    color: var(--ink-2);
+    font-size: var(--step-0);
+  }
+  .s-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-md) var(--space-lg);
+  }
+
+  /* ---- Main ---- */
+  .s-main__grid {
+    display: grid;
+    gap: var(--space-xl);
+    align-items: start;
+  }
+  @media (min-width: 56rem) {
+    .s-main__grid {
+      grid-template-columns: minmax(0, 1.6fr) minmax(18rem, 1fr);
+      gap: var(--space-2xl);
+    }
+  }
+  .s-prose {
+    font-size: var(--step-1);
+    line-height: 1.6;
+    max-width: 62ch;
+  }
+
+  .s-programme {
+    margin-top: var(--space-xl);
+  }
+  .s-programme h2 {
+    font-size: var(--step-2);
+    margin-bottom: var(--space-md);
+  }
+  .s-programme__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-sm);
+  }
+  @media (min-width: 40rem) {
+    .s-programme__list {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  .s-programme__list li {
+    display: grid;
+    gap: var(--space-sm);
+    align-content: start;
+    margin: 0;
+    padding: var(--space-md);
+    background: var(--surface);
+    border-radius: var(--radius);
+    font-weight: 600;
+    line-height: 1.4;
+  }
+  .s-programme__num {
+    font-family: var(--font-display);
+    font-size: var(--step--1);
+    font-weight: 800;
+    color: var(--accent);
+  }
+
+  .s-aside {
+    display: grid;
+    gap: var(--space-md);
+  }
+  @media (min-width: 56rem) {
+    .s-aside {
+      position: sticky;
+      top: calc(var(--header-h) + var(--space-lg));
+    }
+  }
+  .s-panel {
+    padding: clamp(1.25rem, 2.5vw, 1.75rem);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+  }
+  .s-panel p {
+    color: var(--ink-2);
+    font-size: var(--step--1);
+  }
+  .s-panel__muted {
+    color: var(--ink-3) !important;
+  }
+  .s-panel__title {
+    margin: 0 0 var(--space-xs);
+    font-size: var(--step--2);
+    font-weight: 700;
+    font-stretch: 112%;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .s-panel__title + p {
+    margin-bottom: var(--space-lg);
+  }
+  h3.s-panel__title {
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--line);
+  }
+  .s-panel__link {
+    margin-top: var(--space-md);
+    font-size: var(--step--1);
+  }
+
+  .s-leaders {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .s-leaders li {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.25rem 1rem;
+    margin: 0;
+    padding-block: 0.7rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .s-leaders__name {
+    font-weight: 650;
+  }
+  .s-leaders__role {
+    color: var(--ink-3);
+    font-size: var(--step--1);
+  }
+
+  /* ---- Lists ---- */
+  .s-stories {
+    display: grid;
+    gap: var(--space-xl) var(--space-lg);
+  }
+  .s-stories:has(> :nth-child(2)) {
+    @media (min-width: 44rem) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    @media (min-width: 68rem) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  /* ---- Pager ---- */
+  .s-pager {
+    display: grid;
+    gap: var(--space-sm);
+  }
+  @media (min-width: 40rem) {
+    .s-pager {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .s-pager__link {
+    position: relative;
+    display: grid;
+    gap: 0.25rem;
+    padding: var(--space-md) var(--space-lg);
+    color: var(--ink);
+    text-decoration: none;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition:
+      border-color 0.2s ease,
+      background 0.2s ease;
+  }
+  .s-pager__link::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 4px;
+    background: var(--accent);
+  }
+  .s-pager__link--next {
+    grid-column: -2;
+    text-align: right;
+  }
+  .s-pager__link--next::before {
+    inset: 0 0 0 auto;
+  }
+  .s-pager__link:hover {
+    border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+    background: color-mix(in srgb, var(--accent) 5%, var(--bg));
+  }
+  .s-pager__label {
+    font-size: var(--step--1);
+    color: var(--ink-3);
+    font-weight: 600;
+  }
+  .s-pager__name {
+    font-family: var(--font-display);
+    font-weight: 750;
+    font-size: var(--step-2);
+    letter-spacing: -0.025em;
+    line-height: 1.1;
+  }
+  .s-pager__age {
+    font-size: var(--step--1);
+    color: var(--ink-2);
+  }
+  @media (max-width: 39.99rem) {
+    .s-pager__link--next {
+      grid-column: auto;
+    }
+  }
+</style>

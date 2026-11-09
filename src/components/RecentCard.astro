@@ -1,0 +1,153 @@
+---
+/**
+ * RecentCard — an editorial "recent adventure" story card.
+ * Variants: `featured` (large, side-by-side on wide screens), default
+ * (image above text) and `compact` (small thumbnail beside text).
+ */
+import type { CollectionEntry } from 'astro:content';
+import { formatDate, isoDate } from '../utils/format';
+import PlaceholderImage from './PlaceholderImage.astro';
+import SectionTag from './SectionTag.astro';
+
+interface Props {
+  entry: CollectionEntry<'recent'>;
+  featured?: boolean;
+  compact?: boolean;
+}
+
+const { entry, featured = false, compact = false } = Astro.props;
+const { data } = entry;
+const href = `/recent/${entry.id}/`;
+const variant = featured ? 'featured' : compact ? 'compact' : 'default';
+const ratio = featured ? '4/3' : compact ? '1/1' : '16/10';
+const sizes = featured
+  ? '(max-width: 60rem) 100vw, 720px'
+  : compact
+    ? '160px'
+    : '(max-width: 48rem) 100vw, 400px';
+---
+
+<article class={`story story--${variant}`}>
+  <!-- biome-ignore lint/a11y/useAnchorContent: decorative duplicate of the title link, hidden from assistive tech on purpose -->
+  <a class="story__media" href={href} tabindex="-1" aria-hidden="true">
+    <PlaceholderImage
+      src={data.image}
+      alt={data.imageAlt}
+      ratio={ratio}
+      caption={compact ? '' : 'Photo to follow'}
+      loading={featured ? 'eager' : 'lazy'}
+      sizes={sizes}
+    />
+  </a>
+
+  <div class="story__body">
+    <p class="story__meta">
+      <time datetime={isoDate(data.date)}
+        >{formatDate(data.date, 'short')}</time
+      >
+      {data.sample && <span class="placeholder">Sample story</span>}
+    </p>
+    <h3 class="story__title"><a href={href}>{data.title}</a></h3>
+    {!compact && <p class="story__summary">{data.summary}</p>}
+
+    {!compact && data.sections.length > 0 && (
+      <div class="story__tags">
+        {data.sections.map((s) => (
+          <SectionTag section={s} />
+        ))}
+      </div>
+    )}
+  </div>
+</article>
+
+<style>
+  .story {
+    position: relative;
+    display: grid;
+    gap: var(--space-md);
+    align-content: start;
+  }
+
+  .story__media {
+    display: block;
+    border-radius: var(--radius);
+    overflow: hidden;
+    text-decoration: none;
+  }
+  .story__media :global(.ph) {
+    border-radius: 0;
+    transition: transform 0.6s var(--ease);
+  }
+  .story:hover .story__media :global(.ph) {
+    transform: scale(1.03);
+  }
+
+  .story__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0 0 0.45rem;
+    font-size: var(--step--1);
+    font-weight: 600;
+    color: var(--ink-3);
+  }
+
+  .story__title {
+    margin: 0;
+    font-size: var(--step-2);
+  }
+  .story__title a {
+    text-decoration: none;
+  }
+  /* Make the whole card clickable via the title link. */
+  .story__title a::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+  }
+  .story:hover .story__title a {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+  }
+
+  .story__summary {
+    margin: var(--space-sm) 0 0;
+    color: var(--ink-2);
+  }
+
+  .story__tags {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: var(--space-md);
+  }
+
+  .story--featured .story__title {
+    font-size: var(--step-3);
+  }
+  .story--featured .story__summary {
+    font-size: var(--step-1);
+    line-height: 1.5;
+  }
+  @media (min-width: 56rem) {
+    .story--featured {
+      grid-template-columns: 1.4fr 1fr;
+      gap: var(--space-2xl);
+      align-items: center;
+    }
+  }
+
+  .story--compact {
+    grid-template-columns: clamp(5.5rem, 22%, 8.5rem) 1fr;
+    align-items: center;
+  }
+  .story--compact .story__title {
+    font-size: var(--step-1);
+  }
+  .story--compact .story__meta {
+    margin-bottom: 0.3rem;
+  }
+</style>

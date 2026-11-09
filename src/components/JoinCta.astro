@@ -1,0 +1,144 @@
+---
+/**
+ * JoinCta — a reusable "interested in joining" band. Per the brief there is no
+ * contact form; this points people to the group's enquiry email.
+ */
+import { site } from '../data/site';
+
+interface Props {
+  heading?: string;
+  text?: string;
+}
+
+const {
+  heading = 'Thinking about joining?',
+  text = 'We welcome new young people and adult volunteers. Drop us a line and we’ll help you find the right section and let you know about spaces.',
+} = Astro.props;
+---
+
+<section class="join">
+  <div class="container">
+    <div class="join__panel">
+      <div class="join__text">
+        <h2>{heading}</h2>
+        <p>{text}</p>
+      </div>
+      <div class="join__action">
+        <a class="btn btn--light" href={`mailto:${site.email}`}
+          >Email us about joining</a
+        >
+        <p class="join__addr">
+          or write to <a href={`mailto:${site.email}`}>{site.email}</a>
+          {site.emailIsPlaceholder && (
+            <span class="placeholder">Placeholder email</span>
+          )}
+        </p>
+      </div>
+      <div class="join__dial" aria-hidden="true">
+        <span></span><span></span><span></span><span></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .join {
+    padding-block: var(--space-2xl);
+  }
+
+  .join__panel {
+    position: relative;
+    overflow: hidden;
+    display: grid;
+    gap: var(--space-lg);
+    align-items: end;
+    padding: clamp(2rem, 5vw, 4.5rem);
+    background: var(--ink);
+    color: #fff;
+    border-radius: var(--radius-lg);
+    isolation: isolate;
+  }
+  @media (min-width: 52rem) {
+    .join__panel {
+      grid-template-columns: 1.4fr 1fr;
+      gap: var(--space-2xl);
+    }
+  }
+
+  .join h2 {
+    margin: 0 0 var(--space-sm);
+    color: #fff;
+    font-size: var(--step-4);
+    max-width: 14ch;
+  }
+  .join__text p {
+    margin: 0;
+    color: #c9c9c3;
+    max-width: 46ch;
+    font-size: var(--step-1);
+    line-height: 1.5;
+  }
+
+  .join__action {
+    display: grid;
+    gap: var(--space-sm);
+    justify-items: start;
+  }
+  .join__addr {
+    margin: 0;
+    font-size: var(--step--1);
+    color: #a9a9a2;
+  }
+  .join__addr a {
+    color: #fff;
+    text-decoration-color: rgba(255, 255, 255, 0.4);
+  }
+  .join__addr a:hover {
+    text-decoration-color: #fff;
+  }
+  .join__addr .placeholder {
+    margin-left: 0.3rem;
+  }
+
+  /* The badge's four quadrants, cropped into the panel corner. */
+  .join__dial {
+    position: absolute;
+    z-index: -1;
+    top: -4.5rem;
+    right: -4.5rem;
+    display: none;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    width: 17rem;
+    aspect-ratio: 1;
+    rotate: 0deg;
+    transition: rotate 1.2s var(--ease);
+  }
+  .join__panel:hover .join__dial {
+    rotate: 12deg;
+  }
+  .join__dial span {
+    border-radius: 4px;
+  }
+  .join__dial span:nth-child(1) {
+    background: var(--badge-green);
+    border-top-left-radius: 100%;
+  }
+  .join__dial span:nth-child(2) {
+    background: var(--badge-red);
+    border-top-right-radius: 100%;
+  }
+  .join__dial span:nth-child(3) {
+    background: var(--badge-yellow);
+    border-bottom-left-radius: 100%;
+  }
+  .join__dial span:nth-child(4) {
+    background: var(--badge-blue);
+    border-bottom-right-radius: 100%;
+  }
+  @media (min-width: 52rem) {
+    .join__dial {
+      display: grid;
+    }
+  }
+</style>

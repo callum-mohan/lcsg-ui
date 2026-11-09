@@ -1,0 +1,135 @@
+---
+import { getCollection } from 'astro:content';
+import ActivityCard from '../components/ActivityCard.astro';
+import JoinCta from '../components/JoinCta.astro';
+import PageHeader from '../components/PageHeader.astro';
+import { site } from '../data/site';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const now = new Date();
+const upcoming = (await getCollection('activities'))
+  .filter((a) => a.data.date >= now)
+  .sort((a, b) => a.data.date.getTime() - b.data.date.getTime());
+
+const monthName = new Intl.DateTimeFormat('en-GB', { month: 'long' });
+const yearName = new Intl.DateTimeFormat('en-GB', { year: 'numeric' });
+
+// Group activities by month for a scannable, diary-style layout.
+const groups: {
+  id: string;
+  month: string;
+  year: string;
+  items: typeof upcoming;
+}[] = [];
+for (const item of upcoming) {
+  const month = monthName.format(item.data.date);
+  const year = yearName.format(item.data.date);
+  const id = `${month}-${year}`.toLowerCase();
+  const last = groups[groups.length - 1];
+  if (last && last.id === id) last.items.push(item);
+  else groups.push({ id, month, year, items: [item] });
+}
+
+const anySample = upcoming.some((a) => a.data.sample);
+---
+
+<BaseLayout
+  title="What's on"
+  description={`Upcoming activities and events at ${site.name} in ${site.locality}, ${site.region}.`}
+>
+  <PageHeader
+    eyebrow="The diary"
+    title="What’s on"
+    lead="Camps, meetings, trips and special events across our sections. Always check with your section leader for the latest details before an event."
+  />
+
+  <section class="section section--tight">
+    <div class="container">
+      {anySample && (
+        <p class="fine-print diary-note">
+          <span class="placeholder">Sample events</span>
+          The entries below are examples showing how the programme will look.
+          Replace them with real activities as they are confirmed.
+        </p>
+      )}
+
+      {groups.length > 0 ? (
+        <div class="months">
+          {groups.map((group) => (
+            <section class="month" aria-labelledby={`m-${group.id}`}>
+              <h2 class="month__label" id={`m-${group.id}`}>
+                {group.month} <span>{group.year}</span>
+              </h2>
+              <div class="month__items">
+                {group.items.map((entry) => (
+                  <ActivityCard entry={entry} />
+                ))}
+              </div>
+            </section>
+          ))}
+        </div>
+      ) : (
+        <div class="empty-state">
+          <h2>Nothing in the diary just now</h2>
+          <p>
+            There are no upcoming activities listed at the moment. Please check
+            back soon, or get in touch to ask what’s coming up.
+          </p>
+          <a class="btn" href={`mailto:${site.email}`}>
+            Email us
+          </a>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <JoinCta />
+</BaseLayout>
+
+<style>
+  .diary-note {
+    margin: 0 0 var(--space-xl);
+  }
+
+  .months {
+    display: grid;
+    gap: var(--space-xl);
+  }
+  .month {
+    display: grid;
+    gap: var(--space-md);
+    padding-top: var(--space-md);
+    border-top: 2px solid var(--ink);
+  }
+  @media (min-width: 56rem) {
+    .month {
+      grid-template-columns: 1fr 3fr;
+      gap: var(--space-2xl);
+      padding-top: var(--space-lg);
+    }
+    .month__label {
+      position: sticky;
+      top: calc(var(--header-h) + var(--space-lg));
+      align-self: start;
+    }
+  }
+
+  .month__label {
+    margin: 0;
+    font-size: var(--step-2);
+  }
+  .month__label span {
+    color: var(--ink-3);
+    font-weight: 600;
+  }
+
+  .month__items > :global(.event:first-child) {
+    border-top: 0;
+    padding-top: 0;
+  }
+  @media (max-width: 55.99rem) {
+    .month__items > :global(.event:first-child) {
+      padding-top: var(--space-sm);
+    }
+  }
+</style>

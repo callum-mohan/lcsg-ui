@@ -1,11 +1,394 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+import ActivityCard from '../components/ActivityCard.astro';
+import CompassBadge from '../components/CompassBadge.astro';
+import JoinCta from '../components/JoinCta.astro';
+import RecentCard from '../components/RecentCard.astro';
+import SectionCard from '../components/SectionCard.astro';
+import { type SectionKey, sectionColorVar } from '../data/sections';
+import { site } from '../data/site';
+import BaseLayout from '../layouts/BaseLayout.astro';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const sections = (await getCollection('sections')).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+const anyAgeUnconfirmed = sections.some((s) => !s.data.ageConfirmed);
+
+const now = new Date();
+const upcoming = (await getCollection('activities'))
+  .filter((a) => a.data.date >= now)
+  .sort((a, b) => a.data.date.getTime() - b.data.date.getTime())
+  .slice(0, 3);
+
+const recent = (await getCollection('recent'))
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+  .slice(0, 3);
+const [featuredStory, ...otherStories] = recent;
+
+const leaders = (await getCollection('leaders')).sort(
+  (a, b) => a.data.order - b.data.order,
+);
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<BaseLayout isHome title="Home">
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container hero__inner">
+      <div class="hero__copy">
+        <p class="eyebrow">{site.locality} · {site.region}</p>
+        <h1 class="hero__title">Scouting in the heart of Lisburn</h1>
+        <p class="hero__lead">
+          Five sections for young people aged 4 to 18. Weekly meetings, camps
+          and outdoor adventure, all run by local volunteers.
+        </p>
+        <div class="hero__actions">
+          <a class="btn" href="#sections">Find your section</a>
+          <a class="arrow-link" href="/activities/">See what’s on</a>
+        </div>
+      </div>
+
+      <div class="hero__visual">
+        <CompassBadge />
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTIONS -->
+  <section id="sections" class="section section--tight">
+    <div class="container">
+      <div class="band-head">
+        <div>
+          <p class="eyebrow">Our sections</p>
+          <h2>A place for every age</h2>
+          <p class="band-head__lead">
+            Young people move up through five sections as they grow, each with
+            its own programme, challenges and friendships.
+          </p>
+        </div>
+        <a class="arrow-link" href="/sections/">All sections</a>
+      </div>
+
+      <div class="section-ladder">
+        {sections.map((entry) => <SectionCard entry={entry} />)}
+      </div>
+
+      {anyAgeUnconfirmed && (
+        <p class="fine-print">
+          <span class="placeholder">Placeholder</span>
+          Age ranges are typical national ranges, to be confirmed with the
+          group.
+        </p>
+      )}
+    </div>
+  </section>
+
+  <!-- WHAT'S ON -->
+  <section class="section section--tight">
+    <div class="container whats-on">
+      <div class="whats-on__head">
+        <p class="eyebrow">What’s on</p>
+        <h2>Coming up</h2>
+        <p class="band-head__lead">
+          Camps, trips and special events across the group. Your section leader
+          will always confirm the details.
+        </p>
+        <a class="arrow-link" href="/activities/">Full programme</a>
+      </div>
+
+      <div class="whats-on__list">
+        {upcoming.length > 0 ? (
+          upcoming.map((entry) => <ActivityCard entry={entry} />)
+        ) : (
+          <p class="empty-note">
+            Nothing in the diary just now. Please check back soon.
+          </p>
+        )}
+      </div>
+    </div>
+  </section>
+
+  <!-- RECENT ADVENTURES -->
+  {featuredStory && (
+    <section class="section section--tight">
+      <div class="container">
+        <div class="band-head">
+          <div>
+            <p class="eyebrow">Recent adventures</p>
+            <h2>What we’ve been up to</h2>
+          </div>
+          <a class="arrow-link" href="/recent/">
+            All stories
+          </a>
+        </div>
+
+        <div class="recent-layout">
+          <RecentCard entry={featuredStory} />
+          {otherStories.length > 0 && (
+            <div class="recent-layout__side">
+              {otherStories.map((entry) => (
+                <RecentCard entry={entry} compact />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- ABOUT & VOLUNTEERS -->
+  <section class="section about">
+    <div class="container about__inner">
+      <div class="about__copy">
+        <p class="eyebrow">About the group</p>
+        <h2>Local, friendly and run by volunteers</h2>
+        <p>
+          We’re a community of young people, parents and volunteers based in
+          Lisburn. Week to week our sections meet to play, learn and get
+          outdoors; across the year we camp, hike, take on challenges and get
+          stuck into local life.
+        </p>
+        <p>
+          None of it happens without the adults who give their time. You don’t
+          need Scouting experience to help, just a few hours and some
+          enthusiasm.
+        </p>
+        <div class="about__actions">
+          <a class="btn btn--ghost" href="/leaders/">Meet our leaders</a>
+          <a class="arrow-link" href={`mailto:${site.email}`}
+            >Ask about volunteering</a
+          >
+        </div>
+      </div>
+
+      <div class="team">
+        <h3 class="team__title">The leadership team</h3>
+        <ul class="team__list">
+          {leaders.map((l) => {
+            const key = l.data.sections[0] as SectionKey | undefined;
+            return (
+              <li
+                class="team__item"
+                style={`--dot:${key ? sectionColorVar[key] : 'var(--badge-compass)'}`}
+              >
+                <span class="team__dot" aria-hidden="true"></span>
+                <span class="team__name">{l.data.name}</span>
+                <span class="team__role">{l.data.role}</span>
+              </li>
+            );
+          })}
+        </ul>
+        {leaders.some((l) => l.data.placeholder) && (
+          <p class="fine-print">
+            <span class="placeholder">Placeholder</span>
+            Names will be added with each volunteer’s permission.
+          </p>
+        )}
+      </div>
+    </div>
+  </section>
+
+  <JoinCta />
+</BaseLayout>
+
+<style>
+  /* ---- Hero ---- */
+  .hero {
+    border-bottom: 1px solid var(--line);
+  }
+  .hero__inner {
+    display: grid;
+    gap: var(--space-xl);
+    align-items: center;
+    padding-block: clamp(2.5rem, 6vw, 5.5rem);
+  }
+  @media (min-width: 56rem) {
+    .hero__inner {
+      grid-template-columns: 1.15fr 1fr;
+      gap: var(--space-xl);
+    }
+  }
+  .hero__title {
+    font-size: var(--step-5);
+    font-stretch: 104%;
+    line-height: 0.96;
+    letter-spacing: -0.045em;
+    margin-bottom: var(--space-md);
+    max-width: 11ch;
+  }
+  .hero__lead {
+    font-size: var(--step-1);
+    line-height: 1.5;
+    color: var(--ink-2);
+    max-width: 36ch;
+    margin-bottom: var(--space-lg);
+  }
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-md) var(--space-lg);
+  }
+  .hero__visual {
+    width: 100%;
+    max-width: min(30rem, 88vw);
+    justify-self: center;
+  }
+  @media (min-width: 56rem) {
+    .hero__visual {
+      justify-self: end;
+    }
+  }
+
+  /* ---- Sections ---- */
+  .section-ladder {
+    display: grid;
+    gap: var(--space-sm);
+  }
+  @media (min-width: 40rem) and (max-width: 59.99rem) {
+    .section-ladder {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (min-width: 60rem) {
+    .section-ladder {
+      grid-template-columns: repeat(5, 1fr);
+    }
+  }
+
+  /* ---- What's on ---- */
+  .whats-on {
+    display: grid;
+    gap: var(--space-lg);
+  }
+  @media (min-width: 56rem) {
+    .whats-on {
+      grid-template-columns: 1fr 2fr;
+      gap: var(--space-2xl);
+      align-items: start;
+    }
+    .whats-on__head {
+      position: sticky;
+      top: calc(var(--header-h) + var(--space-lg));
+    }
+  }
+  .whats-on__head h2 {
+    margin-bottom: 0;
+  }
+  .whats-on__head .band-head__lead {
+    margin-bottom: var(--space-md);
+  }
+  .whats-on__list {
+    border-bottom: 1px solid var(--line);
+  }
+  .whats-on__list > :global(.event:first-child) {
+    padding-top: 0;
+    border-top: 0;
+  }
+  @media (max-width: 55.99rem) {
+    .whats-on__list > :global(.event:first-child) {
+      padding-top: var(--space-lg);
+      border-top: 1px solid var(--line);
+    }
+  }
+  .empty-note {
+    color: var(--ink-3);
+    padding-block: var(--space-lg);
+    margin: 0;
+  }
+
+  /* ---- Recent ---- */
+  .recent-layout {
+    display: grid;
+    gap: var(--space-xl);
+  }
+  @media (min-width: 56rem) {
+    .recent-layout {
+      grid-template-columns: 1.5fr 1fr;
+      gap: var(--space-2xl);
+      align-items: start;
+    }
+  }
+  .recent-layout__side {
+    display: grid;
+    gap: var(--space-lg);
+  }
+  @media (min-width: 56rem) {
+    .recent-layout__side > :global(* + *) {
+      padding-top: var(--space-lg);
+      border-top: 1px solid var(--line);
+    }
+  }
+
+  /* ---- About ---- */
+  .about {
+    background: var(--surface);
+    margin-top: var(--space-xl);
+  }
+  .about__inner {
+    display: grid;
+    gap: var(--space-xl);
+    align-items: start;
+  }
+  @media (min-width: 56rem) {
+    .about__inner {
+      grid-template-columns: 1.2fr 1fr;
+      gap: var(--space-2xl);
+    }
+  }
+  .about__copy h2 {
+    max-width: 16ch;
+  }
+  .about__copy p:not(.eyebrow) {
+    color: var(--ink-2);
+  }
+  .about__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-md) var(--space-lg);
+    margin-top: var(--space-lg);
+  }
+
+  .team {
+    padding: clamp(1.25rem, 3vw, 2rem);
+    background: var(--bg);
+    border-radius: var(--radius-lg);
+  }
+  .team__title {
+    margin: 0 0 var(--space-sm);
+    font-size: var(--step--2);
+    font-weight: 700;
+    font-stretch: 112%;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .team__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .team__item {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 0.8rem;
+    margin: 0;
+    padding-block: 0.9rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .team__dot {
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 50%;
+    background: var(--dot);
+  }
+  .team__name {
+    font-weight: 650;
+  }
+  .team__role {
+    font-size: var(--step--1);
+    color: var(--ink-3);
+    text-align: right;
+  }
+</style>

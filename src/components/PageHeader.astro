@@ -1,0 +1,125 @@
+---
+/**
+ * PageHeader — the standard opening block for inner pages: optional
+ * breadcrumb, eyebrow label, page title and lead paragraph. Extra content
+ * (actions, facts) goes in the default slot; an `aside` slot sits alongside
+ * on wide screens. Pass `accent` to theme it with a section colour.
+ */
+interface Crumb {
+  href: string;
+  label: string;
+}
+
+interface Props {
+  title: string;
+  eyebrow?: string;
+  lead?: string;
+  crumbs?: Crumb[];
+  /** Label for the current page in the breadcrumb (defaults to the title). */
+  current?: string;
+  accent?: string;
+}
+
+const { title, eyebrow, lead, crumbs, current = title, accent } = Astro.props;
+const hasAside = Astro.slots.has('aside');
+---
+
+<header
+  class:list={[
+    'page-header',
+    { 'page-header--accent': accent, 'page-header--split': hasAside },
+  ]}
+  style={accent ? `--accent:${accent}` : undefined}
+>
+  <div class="container page-header__inner">
+    <div class="page-header__copy">
+      {crumbs && (
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <ol>
+            {crumbs.map((c) => (
+              <li>
+                <a href={c.href}>{c.label}</a>
+              </li>
+            ))}
+            <li aria-current="page">{current}</li>
+          </ol>
+        </nav>
+      )}
+      {eyebrow && (
+        <p class:list={['eyebrow', { 'eyebrow--accent': accent }]}>{eyebrow}</p>
+      )}
+      <h1 class="page-header__title">{title}</h1>
+      {lead && <p class="page-header__lead">{lead}</p>}
+      <slot />
+    </div>
+    {hasAside && (
+      <div class="page-header__aside">
+        <slot name="aside" />
+      </div>
+    )}
+  </div>
+</header>
+
+<style>
+  .page-header {
+    border-bottom: 1px solid var(--line);
+  }
+  .page-header--accent {
+    border-top: 6px solid var(--accent);
+  }
+
+  .page-header__inner {
+    display: grid;
+    gap: var(--space-xl);
+    align-items: center;
+    padding-block: clamp(2.5rem, 5vw, 4.5rem) clamp(2.25rem, 4.5vw, 4rem);
+  }
+  @media (min-width: 56rem) {
+    .page-header--split .page-header__inner {
+      grid-template-columns: 1.15fr 1fr;
+      gap: var(--space-2xl);
+    }
+  }
+
+  .page-header__title {
+    font-size: var(--step-5);
+    line-height: 0.98;
+    letter-spacing: -0.045em;
+    margin-bottom: var(--space-md);
+    max-width: 16ch;
+  }
+  .page-header__lead {
+    font-size: var(--step-1);
+    line-height: 1.5;
+    color: var(--ink-2);
+    max-width: 48ch;
+    margin-bottom: 0;
+  }
+
+  .crumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    list-style: none;
+    margin: 0 0 var(--space-lg);
+    padding: 0;
+    font-size: var(--step--1);
+    color: var(--ink-3);
+  }
+  .crumbs li {
+    margin: 0;
+  }
+  .crumbs li + li::before {
+    content: "/";
+    margin-inline: 0.55em;
+    color: var(--line-strong);
+  }
+  .crumbs a {
+    color: var(--ink-2);
+  }
+  .crumbs [aria-current] {
+    max-width: 28ch;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+</style>

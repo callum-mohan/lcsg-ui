@@ -1,0 +1,149 @@
+---
+import { type CollectionEntry, getCollection, render } from 'astro:content';
+import JoinCta from '../../components/JoinCta.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import PlaceholderImage from '../../components/PlaceholderImage.astro';
+import RecentCard from '../../components/RecentCard.astro';
+import SectionTag from '../../components/SectionTag.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { formatDate, isoDate } from '../../utils/format';
+
+export async function getStaticPaths() {
+  const stories = await getCollection('recent');
+  return stories.map((entry) => ({
+    params: { id: entry.id },
+    props: { entry },
+  }));
+}
+
+interface Props {
+  entry: CollectionEntry<'recent'>;
+}
+
+const { entry } = Astro.props;
+const { data } = entry;
+const { Content } = await render(entry);
+
+const more = (await getCollection('recent'))
+  .filter((s) => s.id !== entry.id)
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+  .slice(0, 3);
+---
+
+<BaseLayout title={data.title} description={data.summary}>
+  <article>
+    <PageHeader
+      title={data.title}
+      lead={data.summary}
+      crumbs={[{ href: '/recent/', label: 'Recent adventures' }]}
+      current="Story"
+    >
+      <div class="story-meta">
+        <time datetime={isoDate(data.date)}>{formatDate(data.date)}</time>
+        {data.sections.map((s) => <SectionTag section={s} />)}
+        {data.sample && <span class="placeholder">Sample story</span>}
+      </div>
+    </PageHeader>
+
+    <div class="container story-media">
+      <PlaceholderImage
+        src={data.image}
+        alt={data.imageAlt}
+        ratio="21/9"
+        caption="Photo to follow"
+        loading="eager"
+        sizes="(max-width: 88rem) 100vw, 1360px"
+      />
+    </div>
+
+    <div class="container">
+      <div class="prose story-body">
+        <Content />
+      </div>
+
+      {data.link && (
+        <p class="story-extra">
+          <a class="arrow-link" href={data.link}>
+            See more about this adventure
+          </a>
+        </p>
+      )}
+    </div>
+  </article>
+
+  {more.length > 0 && (
+    <section class="section section--tight">
+      <div class="container">
+        <div class="more">
+          <div class="band-head">
+            <div>
+              <p class="eyebrow">Keep reading</p>
+              <h2>More adventures</h2>
+            </div>
+            <a class="arrow-link" href="/recent/">
+              All stories
+            </a>
+          </div>
+          <div class="more__grid">
+            {more.map((s) => (
+              <RecentCard entry={s} />
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  )}
+
+  <JoinCta />
+</BaseLayout>
+
+<style>
+  .story-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 0.75rem;
+    margin-top: var(--space-lg);
+    font-size: var(--step--1);
+    font-weight: 600;
+    color: var(--ink-2);
+  }
+  .story-meta time {
+    margin-right: 0.25rem;
+  }
+
+  .story-media {
+    margin-block: var(--space-xl);
+  }
+  .story-media :global(.ph) {
+    border-radius: var(--radius-lg);
+  }
+
+  .story-body {
+    font-size: var(--step-1);
+    line-height: 1.65;
+    max-width: 62ch;
+  }
+  .story-extra {
+    margin-top: var(--space-lg);
+  }
+
+  .more {
+    padding-top: var(--space-xl);
+    border-top: 1px solid var(--line);
+  }
+  .more__grid {
+    display: grid;
+    gap: var(--space-xl) var(--space-lg);
+  }
+  @media (min-width: 44rem) {
+    .more__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (min-width: 68rem) {
+    .more__grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+</style>

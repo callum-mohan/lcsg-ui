@@ -1,0 +1,102 @@
+---
+import { getCollection, render } from 'astro:content';
+import JoinCta from '../components/JoinCta.astro';
+import LeaderCard from '../components/LeaderCard.astro';
+import PageHeader from '../components/PageHeader.astro';
+import { site } from '../data/site';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const leaders = (await getCollection('leaders')).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+const rendered = await Promise.all(
+  leaders.map(async (entry) => ({
+    entry,
+    Content: (await render(entry)).Content,
+  })),
+);
+const anyPlaceholder = leaders.some((l) => l.data.placeholder);
+---
+
+<BaseLayout
+  title="Our leaders"
+  description={`Meet the volunteer leaders who run ${site.name} in ${site.locality}, ${site.region}.`}
+>
+  <PageHeader
+    eyebrow="The people behind it all"
+    title="Our volunteer leaders"
+    lead="Everything we do is made possible by volunteers who give their time each week. They plan the evenings, lead the camps and make sure every young person is looked after and included."
+  />
+
+  <section class="section section--tight">
+    <div class="container">
+      {anyPlaceholder && (
+        <p class="fine-print leaders-note">
+          <span class="placeholder">Placeholder profiles</span>
+          Names, photographs and introductions will be added with each
+          volunteer’s permission. We don’t publish personal contact details; all
+          enquiries come to us by email.
+        </p>
+      )}
+
+      <div class="leaders-grid">
+        {rendered.map(({ entry, Content }) => (
+          <LeaderCard entry={entry}>
+            <Content />
+          </LeaderCard>
+        ))}
+      </div>
+
+      <div class="volunteer">
+        <div>
+          <p class="eyebrow">Volunteering</p>
+          <h2>Could you lend a hand?</h2>
+          <p>
+            You don’t need Scouting experience to volunteer, just a few hours
+            and some enthusiasm. There are hands-on and behind-the-scenes roles
+            to suit all kinds of people and schedules.
+          </p>
+        </div>
+        <a class="btn" href={`mailto:${site.email}`}>Ask about volunteering</a>
+      </div>
+    </div>
+  </section>
+
+  <JoinCta />
+</BaseLayout>
+
+<style>
+  .leaders-note {
+    margin: 0 0 var(--space-xl);
+  }
+
+  .leaders-grid {
+    display: grid;
+    gap: var(--space-md);
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+  }
+
+  .volunteer {
+    display: grid;
+    gap: var(--space-lg);
+    align-items: end;
+    margin-top: var(--space-2xl);
+    padding: clamp(1.5rem, 4vw, 3rem);
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+  }
+  @media (min-width: 52rem) {
+    .volunteer {
+      grid-template-columns: 1fr auto;
+      gap: var(--space-2xl);
+    }
+  }
+  .volunteer h2 {
+    margin-bottom: var(--space-sm);
+  }
+  .volunteer p:not(.eyebrow) {
+    margin: 0;
+    color: var(--ink-2);
+    max-width: 56ch;
+  }
+</style>

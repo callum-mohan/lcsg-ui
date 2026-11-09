@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Update the host below to the group's real custom domain once live.
+Sitemap: https://lisburn-cathedral-scouts.pages.dev/sitemap-index.xml

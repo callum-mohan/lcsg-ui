@@ -1,0 +1,211 @@
+---
+import { getCollection } from 'astro:content';
+import JoinCta from '../../components/JoinCta.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import {
+  type SectionKey,
+  sectionColorVar,
+  sectionHref,
+} from '../../data/sections';
+import { site } from '../../data/site';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { ageSpan } from '../../utils/format';
+
+const sections = (await getCollection('sections')).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+const anyAgeUnconfirmed = sections.some((s) => !s.data.ageConfirmed);
+---
+
+<BaseLayout
+  title="Our sections"
+  description={`The five youth sections at ${site.name} in ${site.locality}: Squirrels, Beavers, Cubs, Scouts and Explorers, for young people aged roughly 4 to 18.`}
+>
+  <PageHeader
+    eyebrow="For ages 4 to 18"
+    title="Five sections, one adventure"
+    lead="As young people grow, they move up through our five sections, each with its own character, challenges and friendships. Find the right starting point below."
+  />
+
+  <section class="section section--tight">
+    <div class="container">
+      <ol class="s-index">
+        {sections.map((entry) => {
+          const key = entry.data.key as SectionKey;
+          const age = ageSpan(entry.data.ageRange);
+          return (
+            <li>
+              <a
+                class="s-row"
+                href={sectionHref(key)}
+                style={`--accent:${sectionColorVar[key]}`}
+              >
+                <span class="s-row__age">
+                  {age ?? entry.data.ageRange}
+                  {age && <span class="s-row__unit">yrs</span>}
+                </span>
+                <span class="s-row__main">
+                  <span class="s-row__name">{entry.data.name}</span>
+                  <span class="s-row__tagline">{entry.data.tagline}</span>
+                </span>
+                <span class="s-row__intro">{entry.data.intro}</span>
+                <span class="s-row__go" aria-hidden="true">
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 16 16"
+                    width="14"
+                    height="14"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M3 8h10M9 4l4 4-4 4" />
+                  </svg>
+                </span>
+              </a>
+            </li>
+          );
+        })}
+      </ol>
+
+      {anyAgeUnconfirmed && (
+        <p class="fine-print">
+          <span class="placeholder">Placeholder</span>
+          Age ranges are typical national ranges, to be confirmed with the
+          group.
+        </p>
+      )}
+    </div>
+  </section>
+
+  <JoinCta />
+</BaseLayout>
+
+<style>
+  .s-index {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .s-index li {
+    margin: 0;
+  }
+
+  .s-row {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: var(--space-sm) var(--space-lg);
+    align-items: center;
+    padding: var(--space-lg) var(--space-md) var(--space-lg)
+      calc(var(--space-md) + 6px);
+    color: var(--ink);
+    text-decoration: none;
+    border-top: 1px solid var(--line);
+    transition: background 0.2s ease;
+  }
+  .s-row::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: var(--space-lg);
+    bottom: var(--space-lg);
+    width: 4px;
+    border-radius: 2px;
+    background: var(--accent);
+  }
+  .s-row:hover {
+    background: color-mix(in srgb, var(--accent) 5%, var(--bg));
+  }
+
+  .s-row__age {
+    grid-column: 1;
+    display: flex;
+    align-items: baseline;
+    gap: 0.3rem;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: var(--step-3);
+    letter-spacing: -0.045em;
+    line-height: 1;
+    white-space: nowrap;
+  }
+  .s-row__unit {
+    font-family: var(--font-body);
+    font-size: var(--step--2);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  .s-row__main {
+    grid-column: 1;
+    display: grid;
+    gap: 0.2rem;
+  }
+  .s-row__name {
+    font-family: var(--font-display);
+    font-weight: 750;
+    font-size: var(--step-2);
+    letter-spacing: -0.025em;
+    line-height: 1.1;
+  }
+  .s-row__tagline {
+    color: var(--ink-2);
+  }
+  .s-row__intro {
+    grid-column: 1;
+    color: var(--ink-2);
+    font-size: var(--step--1);
+    max-width: 60ch;
+  }
+
+  .s-row__go {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    transition:
+      background 0.2s ease,
+      border-color 0.2s ease,
+      color 0.2s ease,
+      transform 0.25s var(--ease);
+  }
+  .s-row:hover .s-row__go {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    transform: translateX(2px);
+  }
+
+  @media (min-width: 60rem) {
+    .s-row {
+      grid-template-columns: 12.5rem 16rem 1fr auto;
+      padding-block: var(--space-xl);
+    }
+    .s-row::before {
+      top: var(--space-xl);
+      bottom: var(--space-xl);
+    }
+    .s-row__age,
+    .s-row__main,
+    .s-row__intro {
+      grid-column: auto;
+    }
+    .s-row__go {
+      grid-column: auto;
+      grid-row: auto;
+    }
+    .s-row__intro {
+      font-size: var(--step-0);
+    }
+  }
+</style>

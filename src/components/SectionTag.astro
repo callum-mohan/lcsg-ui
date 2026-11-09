@@ -1,0 +1,31 @@
+---
+/**
+ * SectionTag — a small coloured chip for a youth section.
+ * Links to the section page by default; set `link={false}` for a plain label.
+ */
+import {
+  type SectionKey,
+  sectionColorVar,
+  sectionHref,
+  sectionLabels,
+} from '../data/sections';
+
+interface Props {
+  section: SectionKey;
+  link?: boolean;
+}
+
+const { section, link = true } = Astro.props;
+const label = sectionLabels[section];
+const style = `--tag-color:${sectionColorVar[section]}`;
+---
+
+{link ? (
+  <a class="tag" href={sectionHref(section)} style={style}>
+    {label}
+  </a>
+) : (
+  <span class="tag" style={style}>
+    {label}
+  </span>
+)}

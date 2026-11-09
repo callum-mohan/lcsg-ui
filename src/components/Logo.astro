@@ -1,0 +1,73 @@
+---
+/**
+ * Logo — the group badge plus a typeset wordmark.
+ * The badge is the supplied PNG, optimised by Astro. Swap the file in
+ * src/assets/brand/ for a higher-resolution or SVG version when available.
+ */
+import { Image } from 'astro:assets';
+import badge from '../assets/brand/lcsg-logo.png';
+
+interface Props {
+  size?: number;
+  class?: string;
+}
+
+const { size = 44, class: className = '' } = Astro.props;
+---
+
+<span class={`logo ${className}`}>
+  <Image
+    src={badge}
+    alt=""
+    width={size}
+    height={size}
+    densities={[1, 2]}
+    loading="eager"
+    class="logo__badge"
+  />
+  <span class="logo__text">
+    <span class="logo__name">Lisburn Cathedral</span>
+    <span class="logo__sub">Scout Group</span>
+  </span>
+</span>
+
+<style>
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+  .logo__badge {
+    flex: none;
+    width: auto;
+  }
+  .logo__text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1;
+  }
+  .logo__name {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-stretch: 108%;
+    font-size: 1.02rem;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  @media (max-width: 24rem) {
+    .logo__name {
+      font-size: 0.9rem;
+    }
+  }
+  .logo__sub {
+    margin-top: 0.28rem;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-stretch: 118%;
+    font-size: 0.68rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+</style>

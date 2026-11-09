@@ -1,0 +1,181 @@
+---
+/**
+ * SectionCard — a navigation card for a youth section, keyed to the section's
+ * official colour. Laid out in a row they read as a 4-to-18 age ladder.
+ */
+import type { CollectionEntry } from 'astro:content';
+import {
+  type SectionKey,
+  sectionColorVar,
+  sectionHref,
+} from '../data/sections';
+import { ageSpan } from '../utils/format';
+
+interface Props {
+  entry: CollectionEntry<'sections'>;
+}
+
+const { entry } = Astro.props;
+const { data } = entry;
+const key = data.key as SectionKey;
+const age = ageSpan(data.ageRange);
+---
+
+<a
+  class="section-card"
+  href={sectionHref(key)}
+  style={`--accent:${sectionColorVar[key]}`}
+  data-section={key}
+>
+  <span class="section-card__age">
+    {age ? (
+      <>
+        <span class="section-card__age-num">{age}</span>
+        <span class="section-card__age-unit">yrs</span>
+      </>
+    ) : (
+      <span class="section-card__age-text">{data.ageRange}</span>
+    )}
+  </span>
+  <span class="section-card__text">
+    <span class="section-card__name">{data.name}</span>
+    <span class="section-card__tagline">{data.tagline}</span>
+  </span>
+  <span class="section-card__go" aria-hidden="true">
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 16 16"
+      width="14"
+      height="14"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.8"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path d="M3 8h10M9 4l4 4-4 4" />
+    </svg>
+  </span>
+</a>
+
+<style>
+  .section-card {
+    position: relative;
+    display: grid;
+    grid-template-columns: 4.75rem 1fr auto;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-md) var(--space-md) var(--space-md)
+      calc(var(--space-md) + 4px);
+    color: var(--ink);
+    text-decoration: none;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition:
+      border-color 0.2s ease,
+      background 0.2s ease,
+      transform 0.25s var(--ease);
+  }
+  .section-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 4px;
+    background: var(--accent);
+  }
+  .section-card:hover {
+    border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+    background: color-mix(in srgb, var(--accent) 5%, var(--bg));
+  }
+
+  .section-card__age {
+    display: grid;
+    gap: 0.3rem;
+    justify-items: start;
+  }
+  .section-card__age-num {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: var(--step-1);
+    letter-spacing: -0.03em;
+    line-height: 1;
+    white-space: nowrap;
+  }
+  .section-card__age-unit,
+  .section-card__age-text {
+    font-size: var(--step--2);
+    font-weight: 600;
+    color: var(--ink-3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .section-card__text {
+    display: grid;
+    gap: 0.2rem;
+  }
+  .section-card__name {
+    font-family: var(--font-display);
+    font-weight: 750;
+    font-size: var(--step-1);
+    letter-spacing: -0.015em;
+    line-height: 1.1;
+  }
+  .section-card__tagline {
+    font-size: var(--step--1);
+    color: var(--ink-2);
+    line-height: 1.4;
+  }
+
+  .section-card__go {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    color: var(--ink);
+    transition:
+      background 0.2s ease,
+      color 0.2s ease,
+      border-color 0.2s ease,
+      transform 0.25s var(--ease);
+  }
+  .section-card:hover .section-card__go {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    transform: translateX(2px);
+  }
+
+  /* In the multi-column ladder the card stacks vertically: colour bar on top. */
+  @media (min-width: 60rem) {
+    :global(.section-ladder) .section-card {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto 1fr auto;
+      align-items: start;
+      gap: var(--space-lg);
+      min-height: 14.5rem;
+      padding: calc(var(--space-md) + 6px) var(--space-md) var(--space-md);
+    }
+    :global(.section-ladder) .section-card::before {
+      inset: 0 0 auto 0;
+      width: auto;
+      height: 6px;
+    }
+    :global(.section-ladder) .section-card__age {
+      display: flex;
+      align-items: baseline;
+      gap: 0.3rem;
+    }
+    :global(.section-ladder) .section-card__age-num {
+      font-size: var(--step-3);
+      letter-spacing: -0.04em;
+    }
+    :global(.section-ladder) .section-card__go {
+      justify-self: start;
+    }
+  }
+</style>

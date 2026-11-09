@@ -1,0 +1,90 @@
+---
+/**
+ * LeaderCard — a volunteer profile. Designed to feel personal rather than like
+ * a corporate staff directory. Names/photos are placeholders until approved;
+ * personal contact details are never published here.
+ */
+import type { CollectionEntry } from 'astro:content';
+import PlaceholderImage from './PlaceholderImage.astro';
+import SectionTag from './SectionTag.astro';
+
+interface Props {
+  entry: CollectionEntry<'leaders'>;
+}
+
+const { entry } = Astro.props;
+const { data } = entry;
+---
+
+<article class="leader">
+  <div class="leader__head">
+    <div class="leader__photo">
+      <PlaceholderImage
+        src={data.photo}
+        alt={data.photoAlt}
+        ratio="1/1"
+        caption=""
+        sizes="96px"
+      />
+    </div>
+    <div>
+      <h3 class="leader__name">{data.name}</h3>
+      <p class="leader__role">{data.role}</p>
+    </div>
+  </div>
+
+  <div class="leader__bio"><slot /></div>
+
+  {data.sections.length > 0 && (
+    <div class="leader__foot">
+      {data.sections.map((s) => (
+        <SectionTag section={s} />
+      ))}
+    </div>
+  )}
+</article>
+
+<style>
+  .leader {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    padding: clamp(1.25rem, 2.5vw, 1.75rem);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+  }
+  .leader__head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+  }
+  .leader__photo {
+    flex: none;
+    width: 4.5rem;
+  }
+  .leader__photo :global(.ph) {
+    border-radius: 50%;
+  }
+  .leader__name {
+    margin: 0;
+    font-size: var(--step-1);
+  }
+  .leader__role {
+    margin: 0.2rem 0 0;
+    font-size: var(--step--1);
+    color: var(--ink-3);
+  }
+  .leader__bio {
+    flex: 1;
+  }
+  .leader__bio :global(p) {
+    margin: 0;
+    color: var(--ink-2);
+  }
+  .leader__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+  }
+</style>

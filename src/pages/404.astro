@@ -1,0 +1,86 @@
+---
+import CompassBadge from '../components/CompassBadge.astro';
+import { nav } from '../data/site';
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Page not found"
+  description="Sorry, we couldn't find that page."
+>
+  <section class="notfound">
+    <div class="container notfound__inner">
+      <div class="notfound__compass">
+        <CompassBadge hubValue="404" hubLabel="Not found" />
+      </div>
+      <div class="notfound__copy">
+        <p class="eyebrow">Page not found</p>
+        <h1>This path doesn’t lead anywhere</h1>
+        <p class="notfound__lead">
+          The page may have moved, or the link might be wrong. Let’s get you
+          back on the map.
+        </p>
+        <nav aria-label="Helpful links">
+          <ul class="notfound__links">
+            {nav.map((item) => (
+              <li>
+                <a
+                  class={item.href === '/' ? 'btn' : 'btn btn--ghost'}
+                  href={item.href}
+                >
+                  {item.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .notfound {
+    border-bottom: 1px solid var(--line);
+  }
+  .notfound__inner {
+    display: grid;
+    gap: var(--space-xl);
+    align-items: center;
+    padding-block: clamp(3rem, 7vw, 6rem);
+  }
+  @media (min-width: 56rem) {
+    .notfound__inner {
+      grid-template-columns: 1fr 1.3fr;
+      gap: var(--space-2xl);
+    }
+  }
+  .notfound__compass {
+    width: 100%;
+    max-width: min(24rem, 80vw);
+    justify-self: center;
+  }
+  .notfound h1 {
+    font-size: var(--step-5);
+    line-height: 0.98;
+    letter-spacing: -0.045em;
+    max-width: 12ch;
+  }
+  .notfound__lead {
+    font-size: var(--step-1);
+    line-height: 1.5;
+    color: var(--ink-2);
+    max-width: 40ch;
+  }
+  .notfound__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    list-style: none;
+    margin: var(--space-lg) 0 0;
+    padding: 0;
+  }
+  .notfound__links li {
+    margin: 0;
+  }
+</style>

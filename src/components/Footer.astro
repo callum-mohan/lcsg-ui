@@ -1,0 +1,177 @@
+---
+/**
+ * Site footer with section links, a single contact email (per the brief) and
+ * safeguarding-conscious group information. No contact form.
+ */
+
+import {
+  SECTION_ORDER,
+  sectionColorVar,
+  sectionHref,
+  sectionLabels,
+} from '../data/sections';
+import { nav, site } from '../data/site';
+import Logo from './Logo.astro';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="container site-footer__grid">
+    <div class="site-footer__about">
+      <a href="/" class="site-footer__brand" aria-label={`${site.name} — home`}>
+        <Logo size={52} />
+      </a>
+      <p class="site-footer__place">{site.locality}, {site.region}</p>
+      <p class="site-footer__contact">
+        <span class="site-footer__label">Enquiries</span>
+        <a href={`mailto:${site.email}`}>{site.email}</a>
+        {site.emailIsPlaceholder && (
+          <span class="placeholder">
+            Placeholder email — update before launch
+          </span>
+        )}
+      </p>
+    </div>
+
+    <nav class="site-footer__nav" aria-label="Footer">
+      <h2>Explore</h2>
+      <ul>
+        {nav.map((item) => (
+          <li>
+            <a href={item.href}>{item.label}</a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <nav class="site-footer__nav" aria-label="Sections">
+      <h2>Sections</h2>
+      <ul>
+        {SECTION_ORDER.map((key) => (
+          <li>
+            <a
+              href={sectionHref(key)}
+              class="site-footer__section"
+              style={`--dot:${sectionColorVar[key]}`}
+            >
+              {sectionLabels[key]}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  </div>
+
+  <div class="container">
+    <div class="site-footer__base">
+      <p>&copy; {year} {site.name}</p>
+      <p>
+        We respect the privacy and safeguarding of our young people. Photographs
+        are published only with permission.
+      </p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--surface);
+    border-top: 1px solid var(--line);
+    font-size: var(--step--1);
+  }
+
+  .site-footer__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-lg);
+    padding-block: var(--space-xl);
+  }
+  .site-footer__about {
+    grid-column: 1 / -1;
+  }
+  @media (min-width: 44rem) {
+    .site-footer__grid {
+      grid-template-columns: 2fr 1fr 1fr;
+    }
+    .site-footer__about {
+      grid-column: auto;
+    }
+  }
+
+  .site-footer__brand {
+    display: inline-block;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .site-footer__place {
+    margin: var(--space-md) 0 var(--space-xs);
+    color: var(--ink-2);
+  }
+  .site-footer__contact {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem 0.6rem;
+    margin: 0;
+  }
+  .site-footer__label {
+    color: var(--ink-3);
+  }
+  .site-footer__contact a {
+    font-weight: 600;
+  }
+
+  .site-footer__nav h2 {
+    margin: 0 0 var(--space-sm);
+    font-size: var(--step--2);
+    font-weight: 700;
+    font-stretch: 112%;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .site-footer__nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .site-footer__nav li {
+    margin: 0 0 0.5rem;
+  }
+  .site-footer__nav a {
+    text-decoration: none;
+    color: var(--ink);
+  }
+  .site-footer__nav a:hover {
+    text-decoration: underline;
+  }
+
+  .site-footer__section {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55em;
+  }
+  .site-footer__section::before {
+    content: "";
+    width: 0.5em;
+    height: 0.5em;
+    border-radius: 50%;
+    background: var(--dot);
+  }
+
+  .site-footer__base {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.5rem var(--space-lg);
+    padding-block: var(--space-md) var(--space-lg);
+    border-top: 1px solid var(--line);
+    color: var(--ink-3);
+    font-size: var(--step--2);
+  }
+  .site-footer__base p {
+    margin: 0;
+    max-width: 62ch;
+  }
+</style>
