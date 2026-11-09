@@ -1,9 +1,10 @@
 ---
-name: "Scouts Leader"
+name: "Callum Mohan"
 role: "Section Leader"
 sections: [scouts]
 order: 4
-photoAlt: ""
+photo: ../../assets/images/callum-mohan.jpeg
+photoAlt: "Our Scouts leader smiling on a mountain summit at sunset"
 placeholder: true
 ---
 
