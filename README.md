@@ -54,17 +54,23 @@ public/          Static files (favicon, robots.txt)
 
 1. Swap in a higher-resolution logo at `src/assets/brand/lcsg-logo.png` and regenerate the favicons in `public/`. Colours and fonts are design tokens in `src/styles/global.css`.
 2. Set the real enquiry email in `src/data/site.ts` (and `emailIsPlaceholder: false`).
-3. Set your real domain as `site` in `astro.config.mjs` and in `public/robots.txt`.
-4. Replace every placeholder/sample entry (see the content guide).
+3. Replace every placeholder/sample entry (see the content guide).
 
-## Deployment — Cloudflare Pages
+## Deployment — GitHub Pages
 
-Connect the Git repository in **Workers & Pages → Create → Pages → Connect to Git**:
+The site is published to <https://lisburncathedralscouts.co.uk> by
+`.github/workflows/deploy.yml` on every push to `main` (or manually via
+**Actions → Deploy to GitHub Pages → Run workflow**).
 
-- Framework preset: Astro
-- Build command: `npm run build`
-- Output directory: `dist`
-- Environment variable: `NODE_VERSION` = `22`
-
-Or deploy directly: `npm run build && npx wrangler pages deploy dist`.
-Add the custom domain under **Custom domains**; HTTPS is automatic.
+- Repository **Settings → Pages → Build and deployment → Source** must be
+  **GitHub Actions**.
+- The custom domain is set in **Settings → Pages → Custom domain** and in
+  `public/CNAME`. If the domain changes, update both, plus `site` in
+  `astro.config.mjs` and the sitemap URL in `public/robots.txt`.
+- DNS for the domain (at the registrar):
+  - Apex `lisburncathedralscouts.co.uk`: `A` records to `185.199.108.153`,
+    `185.199.109.153`, `185.199.110.153`, `185.199.111.153` (optionally
+    `AAAA` records to `2606:50c0:8000::153`, `2606:50c0:8001::153`,
+    `2606:50c0:8002::153`, `2606:50c0:8003::153`).
+  - `www`: `CNAME` to `callum-mohan.github.io`.
+- Once the DNS check passes, tick **Enforce HTTPS** in the Pages settings.
