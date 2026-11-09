@@ -33,6 +33,7 @@ replaced before launch:
 - Activities and stories have `sample: true` in their frontmatter.
 - Leaders have `placeholder: true`.
 - Sections have `ageConfirmed: false` and `meetingConfirmed: false`.
+- FAQ answers that need confirming have `placeholder: true`.
 
 When you replace the fictional content with real, confirmed information, set
 these flags appropriately (`sample: false`, `placeholder: false`,
@@ -153,14 +154,53 @@ cta: "Ask about joining Cubs"
 Longer description of the section in Markdown.
 ```
 
-## Change the group email, name or navigation
+## Edit the parents' FAQ
+
+Each question on the FAQ page (`/faq/`) is a file in `src/content/faq/`. To add
+one, create a new file, e.g. `swimming.md`:
+
+```md
+---
+question: "Does my child need to be able to swim?"
+order: 10            # lower numbers appear first
+placeholder: false   # true shows a "To be confirmed" label
+---
+
+The answer, written in Markdown. You can link to other pages, e.g.
+[our sections](/sections/).
+```
+
+Delete a file to remove a question. Several answers (costs, uniform, waiting
+list, taster sessions, meeting times) are general guidance marked
+`placeholder: true`. Check them with the group, edit the text and set
+`placeholder: false`.
+
+## Change the group details, venue or navigation
 
 These live in `src/data/site.ts`:
 
 - `name`, `shortName`, `strapline`, `description` — group identity and SEO text.
 - `email` — the single enquiry address used across the site and footer. Set
   `emailIsPlaceholder: false` once it's the real address.
-- `nav` — the main navigation links.
+- `facebookUrl` — the group's Facebook page. Set `facebookIsPlaceholder: false`
+  once it's the real link.
+- `venue` — the usual meeting place shown in "Where we meet" on the home page
+  and FAQ: `name`, `address` lines, `postcode` and `notes`. Set
+  `isPlaceholder: false` once confirmed; the Google Maps link then searches for
+  the real address.
+- `charityNumber` — shown in the footer and on the Safeguarding & privacy page.
+  Set `charityNumberIsPlaceholder: false` once confirmed, or set it to `''` to
+  hide it.
+- `ogImage` — the picture shown when a page is shared on social media
+  (`public/og-image.png`, 1200×630 pixels). If the logo changes, replace this
+  image too.
+- `nav` — the main navigation links. `infoNav` — the "Information" links in the
+  footer.
+
+The Volunteer (`src/pages/volunteer.astro`) and Safeguarding & privacy
+(`src/pages/policies.astro`) pages are written directly in their page files.
+Ask the group's Group Scout Leader to review the safeguarding and privacy text
+before launch.
 
 ## Checklist before launch
 
@@ -168,6 +208,12 @@ These live in `src/data/site.ts`:
       and favicons regenerated (`public/favicon.ico`, `public/favicon.png`, `public/apple-touch-icon.png`).
 - [ ] Section colours checked against current Scouts brand guidelines (`src/styles/global.css`).
 - [ ] Real enquiry email set and `emailIsPlaceholder: false` (`src/data/site.ts`).
+- [ ] Real Facebook link, meeting venue and charity number set, with their
+      placeholder flags turned off (`src/data/site.ts`).
+- [ ] FAQ answers confirmed (`placeholder: false` in `src/content/faq/`).
+- [ ] Safeguarding & privacy page reviewed by the Group Scout Leader
+      (`src/pages/policies.astro`).
+- [ ] Social share image (`public/og-image.png`) matches the current logo.
 - [ ] Real domain set in `astro.config.mjs` and `public/robots.txt`.
 - [ ] All section ages confirmed (`ageConfirmed: true`) and meeting info added.
 - [ ] Sample activities/stories replaced (`sample: false`).

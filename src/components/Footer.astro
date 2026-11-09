@@ -10,7 +10,7 @@ import {
   sectionHref,
   sectionLabels,
 } from '../data/sections';
-import { nav, site } from '../data/site';
+import { infoNav, nav, site } from '../data/site';
 import Logo from './Logo.astro';
 
 const year = new Date().getFullYear();
@@ -32,16 +32,29 @@ const year = new Date().getFullYear();
           </span>
         )}
       </p>
+      <p class="site-footer__contact">
+        <span class="site-footer__label">Facebook</span>
+        <a href={site.facebookUrl} rel="noopener noreferrer" target="_blank">
+          Join our Facebook group
+        </a>
+        {site.facebookIsPlaceholder && (
+          <span class="placeholder">
+            Placeholder link — update before launch
+          </span>
+        )}
+      </p>
     </div>
 
     <nav class="site-footer__nav" aria-label="Footer">
       <h2>Explore</h2>
       <ul>
-        {nav.map((item) => (
-          <li>
-            <a href={item.href}>{item.label}</a>
-          </li>
-        ))}
+        {nav
+          .filter((item) => item.href !== '/faq/')
+          .map((item) => (
+            <li>
+              <a href={item.href}>{item.label}</a>
+            </li>
+          ))}
       </ul>
     </nav>
 
@@ -61,14 +74,36 @@ const year = new Date().getFullYear();
         ))}
       </ul>
     </nav>
+
+    <nav class="site-footer__nav" aria-label="Information">
+      <h2>Information</h2>
+      <ul>
+        {infoNav.map((item) => (
+          <li>
+            <a href={item.href}>{item.label}</a>
+          </li>
+        ))}
+      </ul>
+    </nav>
   </div>
 
   <div class="container">
     <div class="site-footer__base">
-      <p>&copy; {year} {site.name}</p>
+      <p>
+        &copy; {year} {site.name}
+        {site.charityNumber && (
+          <>
+            {' · '}Registered charity {site.charityNumber}
+            {site.charityNumberIsPlaceholder && (
+              <span class="placeholder">Placeholder</span>
+            )}
+          </>
+        )}
+      </p>
       <p>
         We respect the privacy and safeguarding of our young people. Photographs
-        are published only with permission.
+        are published only with permission.{' '}
+        <a href="/policies/">Safeguarding &amp; privacy</a>
       </p>
     </div>
   </div>
@@ -92,7 +127,7 @@ const year = new Date().getFullYear();
   }
   @media (min-width: 44rem) {
     .site-footer__grid {
-      grid-template-columns: 2fr 1fr 1fr;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
     }
     .site-footer__about {
       grid-column: auto;
@@ -114,6 +149,9 @@ const year = new Date().getFullYear();
     align-items: center;
     gap: 0.35rem 0.6rem;
     margin: 0;
+  }
+  .site-footer__contact + .site-footer__contact {
+    margin-top: var(--space-xs);
   }
   .site-footer__label {
     color: var(--ink-3);
@@ -173,5 +211,8 @@ const year = new Date().getFullYear();
   .site-footer__base p {
     margin: 0;
     max-width: 62ch;
+  }
+  .site-footer__base a {
+    color: var(--ink-2);
   }
 </style>

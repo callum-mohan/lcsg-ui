@@ -1,0 +1,209 @@
+---
+import JoinCta from '../components/JoinCta.astro';
+import PageHeader from '../components/PageHeader.astro';
+import { site } from '../data/site';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const roles = [
+  {
+    title: 'Section leaders and assistants',
+    text: 'Help plan and run weekly meetings, camps and trips with one of our five sections.',
+  },
+  {
+    title: 'Occasional helpers',
+    text: 'Lend a hand when you can: an evening activity, a camp kitchen, or sharing a skill or hobby.',
+  },
+  {
+    title: 'Trustees and committee',
+    text: 'Help the group run smoothly behind the scenes, from finances and fundraising to our meeting place.',
+  },
+  {
+    title: 'Skills and admin',
+    text: 'Photography, social media, IT, kit and equipment, or keeping our records in order.',
+  },
+];
+
+const steps = [
+  {
+    title: 'Get in touch',
+    text: 'Email us and we’ll arrange an informal chat about what you’d like to do and how much time you have.',
+  },
+  {
+    title: 'Come and see',
+    text: 'Visit a meeting to meet the team and see what a typical evening looks like.',
+  },
+  {
+    title: 'Vetting and references',
+    text: 'Like all Scout volunteers in Northern Ireland, you’ll complete an AccessNI criminal record check and provide references where your role requires it.',
+  },
+  {
+    title: 'Training and support',
+    text: 'The Scouts provides free training, including safeguarding and safety, and our leaders will support you as you get started.',
+  },
+];
+---
+
+<BaseLayout
+  title="Volunteer with us"
+  description={`Volunteer with ${site.name} in ${site.locality}. Flexible roles for adults of all backgrounds, with training and support provided.`}
+>
+  <PageHeader
+    eyebrow="Get involved"
+    title="Volunteer with us"
+    lead="Every meeting, camp and adventure happens because local people give their time. You don’t need Scouting experience, just a few hours and some enthusiasm."
+  >
+    <div class="v-actions">
+      <a class="btn" href={`mailto:${site.email}?subject=Volunteering`}
+        >Ask about volunteering</a
+      >
+      {site.emailIsPlaceholder && (
+        <span class="placeholder">Placeholder email</span>
+      )}
+    </div>
+  </PageHeader>
+
+  <section class="section section--tight">
+    <div class="container">
+      <div class="band-head">
+        <div>
+          <p class="eyebrow">Ways to help</p>
+          <h2>A role for everyone</h2>
+          <p class="band-head__lead">
+            Whether you can give an evening a week or a few hours a term,
+            there’s something to suit your skills and schedule.
+          </p>
+        </div>
+      </div>
+
+      <ul class="v-roles">
+        {roles.map((role) => (
+          <li class="v-role">
+            <h3>{role.title}</h3>
+            <p>{role.text}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section section--tight">
+    <div class="container v-why">
+      <div>
+        <p class="eyebrow">Why volunteer?</p>
+        <h2>Good for them, good for you</h2>
+      </div>
+      <div class="prose v-why__copy">
+        <p>
+          Volunteering is a chance to give young people in Lisburn the
+          confidence and skills to succeed, and to have fun outdoors while
+          you’re at it.
+        </p>
+        <p>
+          You’ll make friends, learn new skills and gain recognised training
+          that can support your own development. Many of our volunteers are
+          parents; plenty aren’t.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--tight">
+    <div class="container">
+      <div class="band-head">
+        <div>
+          <p class="eyebrow">How it works</p>
+          <h2>Getting started</h2>
+        </div>
+      </div>
+      <ol class="v-steps">
+        {steps.map((step, i) => (
+          <li class="v-step">
+            <span class="v-step__num" aria-hidden="true">
+              {String(i + 1).padStart(2, '0')}
+            </span>
+            <h3>{step.title}</h3>
+            <p>{step.text}</p>
+          </li>
+        ))}
+      </ol>
+      <p class="fine-print">
+        Read more about{' '}
+        <a href="/policies/">how we keep young people safe</a>.
+      </p>
+    </div>
+  </section>
+
+  <JoinCta
+    heading="Ready to lend a hand?"
+    text="Drop us a line and we’ll have a friendly, no-commitment chat about how you could get involved."
+  />
+</BaseLayout>
+
+<style>
+  .v-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-sm) var(--space-md);
+    margin-top: var(--space-lg);
+  }
+
+  .v-roles,
+  .v-steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-md);
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+  }
+  .v-role,
+  .v-step {
+    margin: 0;
+    padding: clamp(1.25rem, 3vw, 1.75rem);
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+  }
+  .v-role h3,
+  .v-step h3 {
+    margin: 0 0 var(--space-xs);
+    font-size: var(--step-1);
+  }
+  .v-role p,
+  .v-step p {
+    margin: 0;
+    color: var(--ink-2);
+  }
+
+  .v-step {
+    background: none;
+    border: 1px solid var(--line);
+  }
+  .v-step__num {
+    display: block;
+    margin-bottom: var(--space-sm);
+    font-family: var(--font-display);
+    font-size: var(--step--1);
+    font-weight: 700;
+    color: var(--ink-3);
+  }
+
+  .v-why {
+    display: grid;
+    gap: var(--space-lg);
+  }
+  @media (min-width: 56rem) {
+    .v-why {
+      grid-template-columns: 1fr 1.4fr;
+      gap: var(--space-2xl);
+    }
+  }
+  .v-why h2 {
+    max-width: 14ch;
+  }
+  .v-why__copy {
+    color: var(--ink-2);
+    font-size: var(--step-1);
+    max-width: 54ch;
+  }
+</style>

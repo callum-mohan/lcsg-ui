@@ -16,10 +16,11 @@ interface Props {
   title: string;
   description?: string;
   image?: string;
+  imageAlt?: string;
   isHome?: boolean;
 }
 
-const { title, description, image, isHome } = Astro.props;
+const { title, description, image, imageAlt, isHome } = Astro.props;
 ---
 
 <!doctype html>
@@ -29,6 +30,7 @@ const { title, description, image, isHome } = Astro.props;
       title={title}
       description={description}
       image={image}
+      imageAlt={imageAlt}
       isHome={isHome}
     />
   </head>

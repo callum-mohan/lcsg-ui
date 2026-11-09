@@ -9,8 +9,10 @@ import { site } from '../data/site';
 interface Props {
   title: string;
   description?: string;
-  /** Path or URL to a social share image (optional). */
+  /** Path or URL to a social share image. Defaults to the group badge. */
   image?: string;
+  /** Alt text for the share image. */
+  imageAlt?: string;
   /** Set true on the homepage so the title isn't duplicated. */
   isHome?: boolean;
 }
@@ -19,6 +21,7 @@ const {
   title,
   description = site.description,
   image,
+  imageAlt,
   isHome = false,
 } = Astro.props;
 
@@ -26,7 +29,9 @@ const pageTitle = isHome
   ? `${site.name} — ${site.strapline}`
   : `${title} · ${site.name}`;
 const canonical = new URL(Astro.url.pathname, Astro.site);
-const ogImage = image ? new URL(image, Astro.site) : undefined;
+const ogImage = new URL(image ?? site.ogImage, Astro.site);
+const ogImageAlt = image ? imageAlt : site.ogImageAlt;
+const isDefaultImage = !image;
 ---
 
 <meta charset="utf-8" />
@@ -48,15 +53,17 @@ const ogImage = image ? new URL(image, Astro.site) : undefined;
 <meta property="og:title" content={pageTitle} />
 <meta property="og:description" content={description} />
 <meta property="og:url" content={canonical} />
-{ogImage && <meta property="og:image" content={ogImage} />}
+<meta property="og:locale" content="en_GB" />
+<meta property="og:image" content={ogImage} />
+{isDefaultImage && <meta property="og:image:width" content="1200" />}
+{isDefaultImage && <meta property="og:image:height" content="630" />}
+{ogImageAlt && <meta property="og:image:alt" content={ogImageAlt} />}
 
-<meta
-  name="twitter:card"
-  content={ogImage ? 'summary_large_image' : 'summary'}
-/>
+<meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content={pageTitle} />
 <meta name="twitter:description" content={description} />
-{ogImage && <meta name="twitter:image" content={ogImage} />}
+<meta name="twitter:image" content={ogImage} />
+{ogImageAlt && <meta name="twitter:image:alt" content={ogImageAlt} />}
 
 <meta name="theme-color" content="#ffffff" />
 <link rel="sitemap" href="/sitemap-index.xml" />

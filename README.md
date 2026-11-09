@@ -40,20 +40,20 @@ npm run validate   # everything CI runs: Biome, astro check and build
 ## Structure
 
 ```text
-src/content/     Volunteer-editable Markdown (sections, activities, recent, leaders)
+src/content/     Volunteer-editable Markdown (sections, activities, recent, leaders, faq)
 src/content.config.ts  Content schemas / validation
-src/data/        Site name, contact email, navigation
+src/data/        Site name, contact details, venue, navigation
 src/components/  Reusable UI pieces
 src/layouts/     Page shell
 src/pages/       Routes
 src/styles/      Design tokens and global styles (global.css)
-public/          Static files (favicon, robots.txt)
+public/          Static files (favicon, social share image, robots.txt)
 ```
 
 ## Before you go live
 
-1. Swap in a higher-resolution logo at `src/assets/brand/lcsg-logo.png` and regenerate the favicons in `public/`. Colours and fonts are design tokens in `src/styles/global.css`.
-2. Set the real enquiry email in `src/data/site.ts` (and `emailIsPlaceholder: false`).
+1. Swap in a higher-resolution logo at `src/assets/brand/lcsg-logo.png` and regenerate the favicons and social share image (`og-image.png`, 1200×630) in `public/`. Colours and fonts are design tokens in `src/styles/global.css`.
+2. Set the real enquiry email, Facebook link, meeting venue and charity number in `src/data/site.ts` (and turn off their placeholder flags).
 3. Replace every placeholder/sample entry (see the content guide).
 
 ## Deployment — GitHub Pages

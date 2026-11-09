@@ -1,0 +1,232 @@
+---
+import PageHeader from '../components/PageHeader.astro';
+import { site } from '../data/site';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const links = {
+  yellowCard:
+    'https://www.scouts.org.uk/volunteers/staying-safe-and-safeguarding/safe-scouting-cards/safeguarding-code-of-conduct-for-adults-yellow-card/',
+  dataProtection:
+    'https://www.scouts.org.uk/about-us/policy/data-protection-policy/',
+  scouts: 'https://www.scouts.org.uk/',
+  scoutsNI: 'https://www.scoutsni.org/',
+  ico: 'https://ico.org.uk/',
+};
+
+const toc = [
+  { id: 'safeguarding', label: 'Safeguarding' },
+  { id: 'concerns', label: 'Reporting a concern' },
+  { id: 'photos', label: 'Photographs' },
+  { id: 'privacy', label: 'Privacy notice' },
+  { id: 'about-us', label: 'About the group' },
+];
+---
+
+<BaseLayout
+  title="Safeguarding & privacy"
+  description={`How ${site.name} keeps young people safe and looks after personal information.`}
+>
+  <PageHeader
+    eyebrow="Policies"
+    title="Safeguarding & privacy"
+    lead="The safety and wellbeing of every young person in our care comes first. Here’s how we keep them safe and how we look after your information."
+  />
+
+  <section class="section section--tight">
+    <div class="container policies">
+      <nav class="policies__toc" aria-label="On this page">
+        <p class="policies__toc-title">On this page</p>
+        <ol>
+          {toc.map((item) => (
+            <li>
+              <a href={`#${item.id}`}>{item.label}</a>
+            </li>
+          ))}
+        </ol>
+      </nav>
+
+      <div class="prose policies__body">
+        <h2 id="safeguarding">Safeguarding</h2>
+        <p>
+          {site.name}{' '}
+          is part of The Scouts and follows its national safeguarding policy and
+          procedures. In practice, that means:
+        </p>
+        <ul>
+          <li>
+            All adult volunteers go through the Scouts vetting process,
+            including an AccessNI criminal record check where their role
+            requires it, and references.
+          </li>
+          <li>
+            Every adult completes safeguarding and safety training, which is
+            refreshed regularly.
+          </li>
+          <li>
+            Adults follow the{' '}
+            <a href={links.yellowCard} rel="noopener noreferrer"
+              >Safeguarding Code of Conduct for Adults (the “Yellow Card”)</a
+            >, including never being alone with a young person where they can’t
+            be seen by others.
+          </li>
+          <li>
+            Activities are planned and risk assessed, and adventurous activities
+            are led by people with the right permits and qualifications.
+          </li>
+        </ul>
+
+        <h2 id="concerns">Reporting a concern</h2>
+        <p>
+          If you’re worried about the safety or wellbeing of a young person,
+          please tell us. You can speak to any section leader or our Group Scout
+          Leader, or email <a href={`mailto:${site.email}`}>{site.email}</a>.
+          {site.emailIsPlaceholder && (
+            <span class="placeholder">Placeholder email</span>
+          )}
+        </p>
+        <p>You can also contact these directly:</p>
+        <ul>
+          <li>
+            <strong>Scouts UK HQ Safeguarding Team:</strong>{' '}
+            <a href="mailto:safeguarding@scouts.org.uk"
+              >safeguarding@scouts.org.uk</a
+            >
+          </li>
+          <li>
+            <strong>NSPCC helpline:</strong>{' '}
+            <a href="tel:08088005000">0808 800 5000</a>
+          </li>
+        </ul>
+        <p class="policies__urgent">
+          If a child is in immediate danger, call <a href="tel:999">999</a>.
+        </p>
+
+        <h2 id="photos">Photographs</h2>
+        <p>
+          We love sharing what our young people get up to, but we only publish
+          photographs with permission from a parent or carer. We don’t publish
+          young people’s full names alongside their photos. If you’d like a
+          photo removed, email us and we’ll take it down promptly.
+        </p>
+
+        <h2 id="privacy">Privacy notice</h2>
+        <h3>This website</h3>
+        <p>
+          This website doesn’t use cookies, analytics or tracking, and doesn’t
+          load content from other websites. Our web host may keep standard
+          server logs (such as IP addresses) for security purposes.
+        </p>
+        <h3>When you email us</h3>
+        <p>
+          We use your name, email address and anything you tell us only to reply
+          to your enquiry. We don’t share it with anyone outside the group and
+          we delete it when it’s no longer needed.
+        </p>
+        <h3>Members and volunteers</h3>
+        <p>
+          Like every Scout Group, we are responsible for the personal
+          information we hold about our members, their families and our
+          volunteers. We keep it securely, mainly on The Scouts’ membership
+          system, and use it only to run Scouting safely. Read{' '}
+          <a href={links.dataProtection} rel="noopener noreferrer"
+            >The Scouts’ data protection policy</a
+          >
+          {' '}for more.
+        </p>
+        <p>
+          You can ask to see, correct or delete the information we hold about
+          you or your child by emailing us. If you’re unhappy with how we’ve
+          handled your information, you can complain to the{' '}
+          <a href={links.ico} rel="noopener noreferrer"
+            >Information Commissioner’s Office</a
+          >.
+        </p>
+
+        <h2 id="about-us">About the group</h2>
+        <p>
+          {site.name}{' '}
+          is a member of{' '}
+          <a href={links.scouts} rel="noopener noreferrer">The Scouts</a>{' '}
+          and <a href={links.scoutsNI} rel="noopener noreferrer">Scouts NI</a>.
+          We are run entirely by volunteers.
+        </p>
+        {site.charityNumber && (
+          <p>
+            Registered charity number {site.charityNumber}{' '}
+            {site.charityNumberIsPlaceholder && (
+              <span class="placeholder">Placeholder</span>
+            )}
+          </p>
+        )}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .policies {
+    display: grid;
+    gap: var(--space-xl);
+    align-items: start;
+  }
+  @media (min-width: 56rem) {
+    .policies {
+      grid-template-columns: 14rem minmax(0, 1fr);
+      gap: var(--space-2xl);
+    }
+    .policies__toc {
+      position: sticky;
+      top: calc(var(--header-h) + var(--space-lg));
+    }
+  }
+
+  .policies__toc-title {
+    margin: 0 0 var(--space-sm);
+    font-size: var(--step--2);
+    font-weight: 700;
+    font-stretch: 112%;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .policies__toc ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-left: 2px solid var(--line);
+  }
+  .policies__toc li {
+    margin: 0;
+  }
+  .policies__toc a {
+    display: block;
+    padding: 0.35rem 0 0.35rem var(--space-md);
+    font-size: var(--step--1);
+    color: var(--ink-2);
+    text-decoration: none;
+  }
+  .policies__toc a:hover {
+    color: var(--ink);
+    text-decoration: underline;
+  }
+
+  .policies__body {
+    max-width: 68ch;
+  }
+  .policies__body > h2:first-child {
+    margin-top: 0;
+  }
+  .policies__body h2 {
+    scroll-margin-top: calc(var(--header-h) + var(--space-md));
+  }
+  .policies__body .placeholder {
+    margin-left: 0.4rem;
+  }
+  .policies__urgent {
+    padding: var(--space-md);
+    border-left: 4px solid var(--badge-red);
+    background: var(--surface);
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+  }
+</style>

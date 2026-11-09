@@ -5,6 +5,7 @@ import CompassBadge from '../components/CompassBadge.astro';
 import JoinCta from '../components/JoinCta.astro';
 import RecentCard from '../components/RecentCard.astro';
 import SectionCard from '../components/SectionCard.astro';
+import Venue from '../components/Venue.astro';
 import { type SectionKey, sectionColorVar } from '../data/sections';
 import { site } from '../data/site';
 import BaseLayout from '../layouts/BaseLayout.astro';
@@ -107,6 +108,13 @@ const leaders = (await getCollection('leaders')).sort(
     </div>
   </section>
 
+  <!-- WHERE WE MEET -->
+  <section class="section section--tight">
+    <div class="container">
+      <Venue />
+    </div>
+  </section>
+
   <!-- RECENT ADVENTURES -->
   {featuredStory && (
     <section class="section section--tight">
@@ -154,9 +162,7 @@ const leaders = (await getCollection('leaders')).sort(
         </p>
         <div class="about__actions">
           <a class="btn btn--ghost" href="/leaders/">Meet our leaders</a>
-          <a class="arrow-link" href={`mailto:${site.email}`}
-            >Ask about volunteering</a
-          >
+          <a class="arrow-link" href="/volunteer/">Volunteer with us</a>
         </div>
       </div>
 

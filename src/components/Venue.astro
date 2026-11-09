@@ -1,0 +1,113 @@
+---
+/**
+ * Venue — "Where we meet" block with the group's usual meeting place and a
+ * link out to a map. Edit the details in `src/data/site.ts`. A link is used
+ * rather than an embedded map so no third-party content loads on the page.
+ */
+import { site, venueMapUrl } from '../data/site';
+
+interface Props {
+  /** Render on a white card (for use inside a grey band). */
+  onSurface?: boolean;
+}
+
+const { onSurface = false } = Astro.props;
+const { venue } = site;
+---
+
+<section
+  id="where-we-meet"
+  class:list={['venue', { 'venue--on-surface': onSurface }]}
+  aria-labelledby="venue-title"
+>
+  <div class="venue__pin" aria-hidden="true">
+    <span></span><span></span><span></span><span></span>
+  </div>
+  <div class="venue__body">
+    <p class="eyebrow">Where we meet</p>
+    <h2 id="venue-title" class="venue__name">
+      {venue.name}
+      {venue.isPlaceholder && <span class="placeholder">Placeholder</span>}
+    </h2>
+    <address class="venue__address">
+      {venue.address.map((line) => <span>{line}</span>)}
+      {venue.postcode && <span>{venue.postcode}</span>}
+    </address>
+    {venue.notes && <p class="venue__notes">{venue.notes}</p>}
+    <a
+      class="arrow-link"
+      href={venueMapUrl}
+      rel="noopener noreferrer"
+      target="_blank"
+    >
+      Open in Google Maps
+    </a>
+  </div>
+</section>
+
+<style>
+  .venue {
+    display: grid;
+    gap: var(--space-lg);
+    align-items: start;
+    padding: clamp(1.5rem, 4vw, 3rem);
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    scroll-margin-top: calc(var(--header-h) + var(--space-md));
+  }
+  .venue--on-surface {
+    background: var(--bg);
+  }
+  @media (min-width: 40rem) {
+    .venue {
+      grid-template-columns: auto 1fr;
+      gap: var(--space-xl);
+    }
+  }
+
+  /* Four-quadrant map pin echoing the badge. */
+  .venue__pin {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3px;
+    width: 3.5rem;
+    aspect-ratio: 1;
+    rotate: 45deg;
+    margin: 0.5rem;
+  }
+  .venue__pin span:nth-child(1) {
+    background: var(--badge-green);
+    border-top-left-radius: 100%;
+  }
+  .venue__pin span:nth-child(2) {
+    background: var(--badge-red);
+    border-top-right-radius: 100%;
+  }
+  .venue__pin span:nth-child(3) {
+    background: var(--badge-yellow);
+    border-bottom-left-radius: 100%;
+  }
+  .venue__pin span:nth-child(4) {
+    background: var(--badge-blue);
+  }
+
+  .venue__name {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem 0.75rem;
+    margin-bottom: var(--space-xs);
+    font-size: var(--step-2);
+  }
+  .venue__address {
+    display: grid;
+    margin-bottom: var(--space-sm);
+    font-style: normal;
+    color: var(--ink-2);
+  }
+  .venue__notes {
+    max-width: 52ch;
+    margin: 0 0 var(--space-md);
+    color: var(--ink-2);
+  }
+</style>

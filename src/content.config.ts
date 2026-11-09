@@ -97,5 +97,16 @@ const leaders = defineCollection({
     }),
 });
 
-export const collections = { sections, activities, recent, leaders };
+// Frequently asked questions for parents and carers (one file per question).
+const faq = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/faq' }),
+  schema: z.object({
+    question: z.string(),
+    order: z.number().default(99),
+    // Group-specific answers stay flagged until confirmed by the group.
+    placeholder: z.boolean().default(false),
+  }),
+});
+
+export const collections = { sections, activities, recent, leaders, faq };
 export { SECTION_KEYS };

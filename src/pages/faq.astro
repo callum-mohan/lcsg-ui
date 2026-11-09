@@ -1,0 +1,148 @@
+---
+import { getCollection, render } from 'astro:content';
+import JoinCta from '../components/JoinCta.astro';
+import PageHeader from '../components/PageHeader.astro';
+import Venue from '../components/Venue.astro';
+import { site } from '../data/site';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const questions = (await getCollection('faq')).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+const rendered = await Promise.all(
+  questions.map(async (entry) => ({
+    entry,
+    Content: (await render(entry)).Content,
+  })),
+);
+const anyPlaceholder = questions.some((q) => q.data.placeholder);
+---
+
+<BaseLayout
+  title="Parents’ FAQ"
+  description={`Answers to common questions from parents and carers about joining ${site.name}: costs, uniform, safety and where we meet.`}
+>
+  <PageHeader
+    eyebrow="For parents and carers"
+    title="Questions from parents"
+    lead="Everything you might want to know before your child joins. If your question isn’t here, just drop us an email."
+  />
+
+  <section class="section section--tight">
+    <div class="container">
+      <div class="faq">
+        {anyPlaceholder && (
+          <p class="fine-print faq__note">
+            <span class="placeholder">Placeholder</span>
+            Answers marked “to be confirmed” are general guidance until the
+            group confirms the details.
+          </p>
+        )}
+
+        <div class="faq__list">
+          {rendered.map(({ entry, Content }) => (
+            <details class="faq__item" id={`faq-${entry.id}`}>
+              <summary class="faq__q">
+                <span>{entry.data.question}</span>
+                <span class="faq__icon" aria-hidden="true"></span>
+              </summary>
+              <div class="faq__a">
+                {entry.data.placeholder && (
+                  <span class="placeholder">To be confirmed</span>
+                )}
+                <div class="prose">
+                  <Content />
+                </div>
+              </div>
+            </details>
+          ))}
+        </div>
+
+        <Venue />
+      </div>
+    </div>
+  </section>
+
+  <JoinCta
+    heading="Still have a question?"
+    text="We’re happy to help. Email us and one of our volunteers will get back to you."
+  />
+</BaseLayout>
+
+<style>
+  .faq {
+    max-width: 56rem;
+  }
+  .faq__note {
+    margin: 0 0 var(--space-lg);
+  }
+  .faq__list {
+    margin-bottom: var(--space-2xl);
+  }
+
+  .faq__list {
+    border-top: 1px solid var(--line);
+  }
+  .faq__item {
+    border-bottom: 1px solid var(--line);
+    scroll-margin-top: calc(var(--header-h) + var(--space-md));
+  }
+  .faq__q {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    padding-block: var(--space-md);
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    cursor: pointer;
+    list-style: none;
+  }
+  .faq__q::-webkit-details-marker {
+    display: none;
+  }
+  .faq__q:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  /* Plus that turns into a minus when open. */
+  .faq__icon {
+    position: relative;
+    flex: none;
+    width: 1.75rem;
+    height: 1.75rem;
+    border: 1px solid var(--line-strong);
+    border-radius: 50%;
+  }
+  .faq__icon::before,
+  .faq__icon::after {
+    content: "";
+    position: absolute;
+    inset: 50% auto auto 50%;
+    width: 0.7rem;
+    height: 1.5px;
+    background: var(--ink);
+    translate: -50% -50%;
+    transition: rotate 0.2s var(--ease);
+  }
+  .faq__icon::after {
+    rotate: 90deg;
+  }
+  .faq__item[open] .faq__icon::after {
+    rotate: 0deg;
+  }
+
+  .faq__a {
+    display: grid;
+    gap: var(--space-sm);
+    justify-items: start;
+    padding-bottom: var(--space-lg);
+    max-width: 62ch;
+  }
+  .faq__a .prose {
+    color: var(--ink-2);
+  }
+</style>
